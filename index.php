@@ -30,7 +30,8 @@ function sum2(...$arg){
     }
     return $sum;
 }
-echo "給定 2 個參數".sum2 (1,2);
+
+echo "給定 2 個參數". sum2 (1, 2);
 echo "<br>";
 echo "給定 3 個參數".sum2 (1,2,5);
 echo "<br>";
@@ -55,5 +56,3 @@ echo "總和是". sum3 (10,15);
 echo "<br>";
 echo "總和是". sum3 (10,15,10);
 ?>
-
-
