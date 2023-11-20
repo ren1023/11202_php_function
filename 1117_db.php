@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * 從指定資料表中檢索符合條件的資料。
  *
@@ -12,11 +14,9 @@ function dball($table = null, $where = '', $other = '')
 {
     // SQL 查詢的初始語句
     $sql = "SELECT * FROM `$table` ";
-    
     // 建立與資料庫的連線
     $dsn = "mysql:localhost;charset=utf8;dbname=school";
     $pdo = new PDO($dsn, 'root', '');
-
     // 檢查是否提供了資料表名稱
     if (isset($table) && !empty($table)) {
         // 如果 $where 是陣列，則處理為 WHERE 條件
@@ -32,13 +32,10 @@ function dball($table = null, $where = '', $other = '')
                 $sql .= " $where";
             }
         }
-
         // 添加額外的 SQL 條件或排序
         $sql .= $other;
-
         // 執行 SQL 查詢，並將結果以關聯陣列形式存儲在 $rows 變數中
         $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-
         // 返回檢索到的資料陣列
         return $rows;
     } else {
@@ -46,22 +43,51 @@ function dball($table = null, $where = '', $other = '')
         echo "請輸入正確的資料表名稱";
     }
 }
-
 // 使用 dball 函數查詢資料表'students' 中 'dept' 為 '3' 的資料
-$rows = dball('students', ['dept' => '3']);
+// $rows = dball('students', ['dept' => '3']);
+
+?>
+<hr>
+<h2>find ()- 會回傳資料表指定 id 的資料 </h2>
+<?php
+
+
+function find($table, $id){
+    // 建立與資料庫的連線
+    $dsn = "mysql:localhost;charset=utf8;dbname=school";
+    $pdo = new PDO($dsn, 'root', '');
+    $sql = "select * from `$table` where `id`='$id'";
+
+    if (is_array($id)){
+        foreach($id as $col => $value){
+            $tmp[] = "`$col`='$value'";
+        }
+        $sql .= " where " . join(" && ", $tmp);
+    } elseif (is_numeric($id)){
+        $sql .= " where `id`='$id'";
+    } else {
+        echo "錯誤：參數的資料型態必須是數字或陣列"; // 修正此行的引號和結束字串
+    }
+
+    $row = $pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
+    return $row;
+}
+
+
+
+
+
+
+
+
 
 // 輸出查詢結果，用於除錯
-dd($rows);
-
-
-
 /**
  * 輸出陣列的內容，用於除錯目的。
  *
  * @param array $array 要輸出的陣列
  */
-function dd($array)
-{
+function dd($array){
     // 在網頁上顯示一個格式化的陣列
     echo "<pre>";
     print_r($array);
