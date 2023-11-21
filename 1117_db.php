@@ -2,6 +2,10 @@
 date_default_timezone_get();
 $dsn = "mysql:localhost;charset=utf8;dbname=$db";
 $pdo = new PDO($dsn, 'root', '');
+
+
+$up=dball('students',['dept'=>'3']);
+
 //$rows=all('students',['dept'=>'3']);
 //$row=find('students',10);
 //$row=find('students',['dept'=>'1','graduate_at'=>'23']);
@@ -13,27 +17,19 @@ $pdo = new PDO($dsn, 'root', '');
 //dd($rows);
 // $up = update ("students", '3', ['dept' => '16', 'name' => ' 張明珠 ']);
 //insert ('dept',['code'=>'101','name'=>' 織品科 ']);
-
 del('dept',11);
 // dd($up); //
 ?>
 
-<?php
 
+<?php
+// 連線至資料庫的 function
 function connect($db){
     $dsn = "mysql:localhost;charset=utf8;dbname=$db";
     $pdo = new PDO($dsn, 'root', '');
-    
     return $pdo;
 }
-
 ?>
-
-
-
-
-
-
 <?php
 /**
  * 從指定資料表中檢索符合條件的資料。
@@ -43,11 +39,11 @@ function connect($db){
  * @param string $other 額外的 SQL 條件或排序
  * @return array 檢索到的資料陣列
  */
-function dball($table = null, $where = '', $other = '')
+function dball ($table = null, $where = '', $other = '')// 當 $other 預設為空值時，在使用函數時，可以不給定值。
 {
     // SQL 查詢的初始語句
     $sql = "SELECT * FROM `$table` ";
-    // 建立與資料庫的連線
+    // 將資料庫連線的程式寫在外面，透過使用 global，呼叫變數。
     global $pdo;
     // 檢查是否提供了資料表名稱
     if (isset($table) && !empty($table)) {
@@ -58,10 +54,10 @@ function dball($table = null, $where = '', $other = '')
                     $tmp[] = "`$col`='$value'";
                 }
                 // 使用 AND 來結合 WHERE 條件
-                $sql .= " WHERE " . join(" AND ", $tmp);
+                $sql .= " where " . join(" && ", $tmp); 
             } else {
                 // 如果 $where 陣列為空，則不添加 WHERE 條件
-                $sql .= " $where";
+                $sql .= " $where ";
             }
         }
         // 添加額外的 SQL 條件或排序
@@ -78,8 +74,6 @@ function dball($table = null, $where = '', $other = '')
 // 使用 dball 函數查詢資料表'students' 中 'dept' 為 '3' 的資料
 // $rows = dball('students', ['dept' => '3']);
 ?>
-
-
 <hr>
 <h2>find ()- 會回傳資料表指定 id 的資料 </h2>
 <?php
@@ -102,8 +96,6 @@ function find($table, $id)
     return $row;
 }
 ?>
-
-
 <hr>
 <h2>update ()- 給定資料表的條件後，會去更新相應的資料。</h2>
 <?php
@@ -134,16 +126,12 @@ function update($table, $id, $cols)
     return $pdo->exec ($sql); // 執行結果是回傳數字，表示影響的資料筆數。
 }
 ?>
-
-
 <hr>
 <h2>insert ()- 給定資料內容後，會去新增資料到資料表 </h2>
 <?php
-
 function insert ($table,$values){
     $pdo=connect('school');
     $sql = "insert into  `$table` ";
-    
     // $cols ="(``,``,``,``,``)";
     $cols="(`".join("`,`",array_keys($values))."`)";
     // $vals="('','','','','')";
@@ -151,49 +139,34 @@ function insert ($table,$values){
     $sql=$sql.$cols." values ".$vals;
     return $pdo->exec($sql);
 }
-
-
 ?>
-
-
-
-
 <hr>
 <h2>del ()- 給定條件後，會去刪除指定的資料 </h2>
 <?php
 function del($table,$id){
     include "pdo.php";
     $sql = "delete from `$table` where ";
-
     if (is_array($id)){
         foreach ($id as $col => $value) {// 轉成 sql 條件式所需要的字串 
             $tmp[] = "`$col`='$value'";
         }
         $sql .=  join(" && ", $tmp);
-        
     } else if (is_numeric($id)) {
         $sql .= " `id`='$id'";
     } else {
         echo "錯誤：參數的資料型態比須是數字或陣列";
     }
-
-    
     echo $sql;
     return $pdo->exec ($sql); // 
 }
 ?>
 <?php
-
 function my_foreach($id){
     foreach ($id as $col => $value) {// 轉成 sql 條件式所需要的字串 
         $tmp[] = "`$col`='$value'";
     }
 }
-
 ?>
-
-
-
 <?php
 /**
  * 輸出陣列的內容，用於除錯目的。
